@@ -26,10 +26,17 @@ const Crud = () => {
     const [email, setEmail] = useState('');
     const [office, setOffice] = useState('');
 
+    const [isEditing, setIsEditing] = useState(false);
+
+    const [currentData, setCurrentData] = useState({});
+    // const [currentName, setCurrentName] = useState({});
+    // const [currentEmail, setCurrentEmail] = useState({});
+    // const [currentOffice, setCurrentOffice] = useState({});
     useEffect(() => {
         localStorage.setItem('data', JSON.stringify(allData))
     }, [allData])
 
+    // Input ADD
     const handleInputChangeName = e => {
         setName(e.target.value)        
     }
@@ -39,6 +46,33 @@ const Crud = () => {
     }
     const handleInputChangeOffice = e => {
         setOffice(e.target.value)        
+    }
+
+    // Input Edit
+    const handleEditInputChangeName = e =>{
+        setCurrentData({ 
+            ...currentData.name, 
+            name: e.target.value,
+        })
+        console.log(currentData.name);
+    }
+
+    const handleEditInputChangeEmail = e =>{
+        //setCurrentEmail({ ...currentEmail, email: e.targe.value})
+        setCurrentData({ 
+            ...currentData.email, 
+            email: e.target.value,
+        })
+        console.log(currentData.email);
+    }
+
+    const handleEditInputChangeOffice = e =>{
+        //setCurrentOffice({ ...currentOffice, office: e.targe.value})
+        setCurrentData({ 
+            ...currentData.office, 
+            office: e.target.value,
+        })
+        console.log(currentData.office);
     }
 
     const handleFormSubmit = e => {
@@ -90,9 +124,35 @@ const Crud = () => {
         }
     }
 
+    // function form update
+    const handleEditFormSubmit = (e) => {
+        e.preventDefault();
+
+        handleUpdateData(currentData.id, currentData);
+        console.log(currentData)
+        return
+    }
+
+    const handleUpdateData = (id, updateData) => {
+        const updatedItem = allData.map((data) => data.id === id? updateData : data);
+
+        setIsEditing(false);
+
+        setAllData(updatedItem)
+
+        console.log('Success',JSON.stringify(updatedItem))
+    }
+
+
     const handleDelete = id => {
         const deleteIttem = allData.filter(data => data.id !== id)
         setAllData(deleteIttem)
+    }
+
+   
+    const handleEditCkick = data => {
+        setIsEditing(true)
+        setCurrentData({...data})
     }
 
 
@@ -126,6 +186,12 @@ const Crud = () => {
                                         >
                                             delete
                                         </Button>
+                                        <Button 
+                                            color="success"
+                                            onClick={() => handleEditCkick(data)}
+                                        >
+                                            Editar
+                                        </Button>
                                     </td>
                                 </tr>
                             ))}
@@ -135,9 +201,55 @@ const Crud = () => {
                 </Col>
 
                 <Col lg="4" md="4" sm="4">
-                    <Form
+                    {isEditing? (
+                        <Form
+                        onSubmit={handleEditFormSubmit}
+                    >   
+                        <h1>Update</h1>
+                        <FormGroup className="my-2">
+                            <Label for="name" className="my-1">Nome</Label>
+                            <Input 
+                                type="text" 
+                                placeholder="Digita o nome" 
+                                id="name" 
+                                name="name"
+                                value={currentData.name}
+                                onChange={handleEditInputChangeName} 
+                            />
+                        </FormGroup>
+                        <FormGroup className="my-2">
+                            <Label for="email" className="my-1">Email</Label>
+                            <Input 
+                                type="text"
+                                placeholder="Digita o email" 
+                                id="email"
+                                name="email"
+                                value={currentData.email}
+                                onChange={handleEditInputChangeEmail} 
+                             />
+                        </FormGroup>
+                        <FormGroup className="my-2">
+                            <Label for="office" className="my-1">Cargo</Label>
+                            <Input 
+                                type="select" 
+                                name="office" 
+                                id="office"
+                                value={currentData.office}
+                                onChange={handleEditInputChangeOffice} 
+                            >
+                                <option>Seleciona teu cargo</option>
+                                <option value="Frontend Developer">Frontend Developer</option>
+                                <option value="Backend Developer">Backend Developer</option>
+                                <option value="Fullstack Developer">Fullstack Developer</option>
+                            </Input>
+                        </FormGroup>
+                        <Button className="col-lg-12" color="primary" active>Enviar</Button>
+                    </Form>
+                    ): (
+                        <Form
                         onSubmit={handleFormSubmit}
                     >
+                         <h1>Create</h1>
                         <FormGroup className="my-2">
                             <Label for="name" className="my-1">Nome</Label>
                             <Input 
@@ -176,6 +288,8 @@ const Crud = () => {
                         </FormGroup>
                         <Button className="col-lg-12" color="primary" active>Enviar</Button>
                     </Form>
+                    )}
+                  
                 </Col>
             </Row>
         </Container>
